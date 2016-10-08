@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="srcPrefixList" class="java.util.ArrayList">
+		<constructor-arg>
+		<list>
+			<value>send</value>
+			<value>pv</value>
+			<value>click</value>
+			<value>mz_bid_request</value>
+			<value>dx_bid_request</value>
+			<value>lt_bid_request</value>
+			<value>baidu_bid_request</value>
+			<value>amax_bid_request</value>
+			<value>tanx_bid_request</value>
+			<value>ky_bid_request</value>
+		</list>
+		</constructor-arg>
+	</bean>
+	<bean id="desPrefixList" class="java.util.ArrayList">
+		<constructor-arg>
+		<list>
+			<value>send</value>
+			<value>pv</value>
+			<value>click</value>
+			<value>mz_req</value>
+			<value>dx_req</value>
+			<value>lt_req</value>
+			<value>baidu_req</value>
+			<value>amax_req</value>
+			<value>tanx_req</value>
+			<value>ky_req</value>
+		</list>
+		</constructor-arg>
+	</bean>
+	<bean id="srcLocalFileList" class="java.util.ArrayList">
+		<constructor-arg>
+		<list>
+			<value>send</value>
+			<value>bp_pv</value>
+			<value>bp_click</value>
+			<value>mz_bid_request</value>
+			<value>dx_bid_request</value>
+			<value>lt_bid_request</value>
+			<value>baidu_bid_request</value>
+			<value>amax_bid_request</value>
+			<value>tanx_bid_request</value>
+			<value>ky_bid_request</value>
+		</list>
+		</constructor-arg>
+	</bean>
+	<bean id="desHdfsFileTypeList" class="java.util.ArrayList">
+		<constructor-arg>
+		<list>
+			<value>send</value>
+			<value>pv</value>
+			<value>click</value>
+			<value>req</value>
+			<value>req</value>
+			<value>req</value>
+			<value>req</value>
+			<value>req</value>
+			<value>req</value>
+			<value>req</value>
+		</list>
+		</constructor-arg>
+	</bean>
+	<bean id="configuration" class="org.apache.hadoop.conf.Configuration">
+	</bean>
+	<bean id="schedule" class="renren_inc.syncAdLogToHadoop.Schedule">
+		<property name="srcPrefixes" ref="srcPrefixList"/>
+		<property name="desPrefixes" ref="desPrefixList" />
+		<property name="srcLocalFileTypes" ref="srcLocalFileList"/>
+		<property name="srcBasePath" value="/data/xce/AdUnion/log/AdLogSX0"/>
+		<property name="desBasetPath" value="/data/xce/AdUnion/log/syncHadoopFiles/hadoopLog"/>
+		<property name="serverName" value="a"/>
+		<property name="desHdfsFileTypes" ref="desHdfsFileTypeList"/>
+		<property name="conf" ref="configuration"/>
+		<property name="hdfsDataType" value="/user/sds/dsp_data"/>
+	</bean>
+</beans>
