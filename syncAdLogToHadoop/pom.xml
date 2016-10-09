@@ -71,9 +71,9 @@
   <resources>
 		<resource>
 			<directory>conf</directory>
-			<includes>
-				<include>syncAdLogToHadoop.xml</include>
-			</includes>
+			<excludes>
+				<exclude>syncAdLogToHadoop.xml</exclude>
+			</excludes>
 		</resource>
 		<resource>
 			<directory></directory>

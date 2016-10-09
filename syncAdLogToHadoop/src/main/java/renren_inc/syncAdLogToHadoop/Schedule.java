@@ -60,6 +60,8 @@ public class Schedule {
 	
 	private Configuration conf;
 	
+	private String nameNode;
+	
 	public void execute(){
 		Calendar startCal = Calendar.getInstance();
 		Calendar endCal = Calendar.getInstance();
@@ -149,7 +151,7 @@ public class Schedule {
 					logger.debug("Intializing the HDFS system");
 					conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
 					conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
-					desHdfs = org.apache.hadoop.fs.FileSystem.get(URI.create("hdfs://10.4.19.91"), conf);
+					desHdfs = org.apache.hadoop.fs.FileSystem.get(URI.create(nameNode), conf);
 				} catch (IOException e) {
 					logger.error("Intializing the HDFS system error");
 					e.printStackTrace();
@@ -162,11 +164,11 @@ public class Schedule {
 					desHdfs.mkdirs(desHdfsPath, fsPermission);
 					//FileUtil.setPermission(desLocalFile, fsPermission);
 					//copy one file from the local to the hadoop
-					FileUtil.copy(desLocalFile, desHdfs, desHdfsPath, false, conf);
+					FileUtil.copy(desLocalFile, desHdfs, desHdfsPath, true, conf);
 					logger.info(desHdfsPath.toString() + SEP +desFile[1]);
 					logger.debug("Copying one local file to HDFS end");
 				} catch (Exception e) {
-					logger.error("Copying one local file to HDFS error");
+					logger.error("Copying one local file to HDFS error: " + desHdfsPath);
 					e.printStackTrace();
 				}
 			}//for
@@ -221,7 +223,8 @@ public class Schedule {
 	}
 	
 	public static void main(String[] args){
-		ApplicationContext ctx = new ClassPathXmlApplicationContext("conf/syncAdLogToHadoop.xml");
+		//ApplicationContext ctx = new ClassPathXmlApplicationContext("conf/syncAdLogToHadoop.xml");
+		ApplicationContext ctx = new ClassPathXmlApplicationContext("syncAdLogToHadoop.xml");
 		Schedule schedule = (Schedule) ctx.getBean("schedule");
 		//only initializing the Start time
 		if(args.length == 1){
@@ -326,6 +329,13 @@ public class Schedule {
 	public void setSrcLocalFileTypes(List<String> srcLocalFileTypes) {
 		this.srcLocalFileTypes = srcLocalFileTypes;
 	}
-	
+
+	public String getNameNode() {
+		return nameNode;
+	}
+
+	public void setNameNode(String nameNode) {
+		this.nameNode = nameNode;
+	}
 	
 }
