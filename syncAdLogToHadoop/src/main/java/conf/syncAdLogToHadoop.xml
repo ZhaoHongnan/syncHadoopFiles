@@ -4,32 +4,32 @@
 	<bean id="srcPrefixList" class="java.util.ArrayList">
 		<constructor-arg>
 		<list>
-			<value>send</value>
-			<value>pv</value>
-			<value>click</value>
-			<value>mz_bid_request</value>
-			<value>dx_bid_request</value>
-			<value>lt_bid_request</value>
-			<value>baidu_bid_request</value>
-			<value>amax_bid_request</value>
-			<value>tanx_bid_request</value>
-			<value>ky_bid_request</value>
+			<value>send_val</value>
+			<value>pv_val</value>
+			<value>click_val</value>
+			<value>mz_bid_request_val</value>
+			<value>dx_bid_request_val</value>
+			<value>lt_bid_request_val</value>
+			<value>baidu_bid_request_val</value>
+			<value>amax_bid_request_val</value>
+			<value>tanx_bid_request_val</value>
+			<value>ky_bid_request_val</value>
 		</list>
 		</constructor-arg>
 	</bean>
 	<bean id="desPrefixList" class="java.util.ArrayList">
 		<constructor-arg>
 		<list>
-			<value>send</value>
-			<value>pv</value>
-			<value>click</value>
-			<value>mz_req</value>
-			<value>dx_req</value>
-			<value>lt_req</value>
-			<value>baidu_req</value>
-			<value>amax_req</value>
-			<value>tanx_req</value>
-			<value>ky_req</value>
+			<value>send_val</value>
+			<value>pv_val</value>
+			<value>click_val</value>
+			<value>mz_req_val</value>
+			<value>dx_req_val</value>
+			<value>lt_req_val</value>
+			<value>baidu_req_val</value>
+			<value>amax_req_val</value>
+			<value>tanx_req_val</value>
+			<value>ky_req_val</value>
 		</list>
 		</constructor-arg>
 	</bean>
@@ -67,6 +67,11 @@
 	</bean>
 	<bean id="configuration" class="org.apache.hadoop.conf.Configuration">
 	</bean>
+	<bean id="logMangerBean" class="renren_inc.syncAdLogToHadoop.LogManager" init-method="init" scope="prototype">
+		<property name="filePath" value="/data/xce/AdUnion/log/syncHadoopFiles/sync_recover_log"/>
+		<property name="nameNode" value="hdfs://10.4.19.91"/>
+		<property name="conf" ref="configuration"/>
+	</bean>
 	<bean id="schedule" class="renren_inc.syncAdLogToHadoop.Schedule">
 		<property name="srcPrefixes" ref="srcPrefixList"/>
 		<property name="desPrefixes" ref="desPrefixList" />
@@ -78,5 +83,6 @@
 		<property name="conf" ref="configuration"/>
 		<property name="hdfsDataType" value="/user/sds/dsp_data"/>
 		<property name="nameNode" value="hdfs://10.4.19.91"/>
+		<property name="logManager" ref="logMangerBean"/>
 	</bean>
 </beans>

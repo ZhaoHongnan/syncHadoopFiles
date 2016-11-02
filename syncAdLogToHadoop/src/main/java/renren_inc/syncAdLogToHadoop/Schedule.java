@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
@@ -56,11 +57,15 @@ public class Schedule {
 	
 	private String _SEP = "_";
 	
+	private String SEP_verticalLineForWrite = "|";
+	
 	private String suffix = ".log.gz";
 	
 	private Configuration conf;
 	
 	private String nameNode;
+	
+	private LogManager logManager;
 	
 	public void execute(){
 		Calendar startCal = Calendar.getInstance();
@@ -80,6 +85,16 @@ public class Schedule {
 			logger.error("Start or End time is not valid.");
 			throw new RuntimeException("Start or End time is not valid.", pe);
 		}
+		
+		logger.info("Firstly do recovery");
+		try {
+			doRecover();
+			cleanRecoverLog();
+		} catch (LogManagerException le) {
+			logger.error("Doing recovery error.");
+			le.printStackTrace();
+		}
+		
 		logger.info("starting while loop!!!");
 		while(!startCal.after(endCal)){
 			//postpone in 4 minutes later 
@@ -116,12 +131,12 @@ public class Schedule {
 				
 				
 				logger.debug("Copying local files start");
-				if (desPrefixes.get(i).equals("baidu_req")){
-					logger.debug("Parsing Baidu logs");
+				if (desPrefixes.get(i).equals("baidu_req_val")){
+					logger.info("Parsing Baidu logs");
 					BaiduParseFile bpf = new BaiduParseFile();
 					bpf.parse(srcFile[0] + srcFile[1], desFile[0] + desFile[1]);
-				}else if(desPrefixes.get(i).equals("tanx_req")){
-					logger.debug("Parsing Tanx logs");
+				}else if(desPrefixes.get(i).equals("tanx_req_val")){
+					logger.info("Parsing Tanx logs");
 					TanxParseFile tpf = new TanxParseFile();
 					tpf.parse(srcFile[0] + srcFile[1], desFile[0] + desFile[1]);
 				}else{
@@ -169,6 +184,13 @@ public class Schedule {
 					logger.debug("Copying one local file to HDFS end");
 				} catch (Exception e) {
 					logger.error("Copying one local file to HDFS error: " + desHdfsPath);
+					try {
+						writeNotPutLog(desFile[0] + desFile[1] + SEP_verticalLineForWrite 
+								+ desHdfsPathStr);
+					} catch (LogManagerException e1) {
+						logger.error("Writing logManager error: " + desHdfsPath);
+						e1.printStackTrace();
+					}
 					e.printStackTrace();
 				}
 			}//for
@@ -196,7 +218,7 @@ public class Schedule {
 		String hour = convertSingleNumber(String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));
 		String minute = convertSingleNumber(String.valueOf(cal.get(Calendar.MINUTE)));
 		strs[0] = path + SEP + fileType + SEP + year + SEP + month + SEP + day + SEP + hour + SEP;
-		strs[1] = filePrefix + _SEP + "val" + _SEP + year + _SEP + month + _SEP + day + _SEP
+		strs[1] = filePrefix  + _SEP + year + _SEP + month + _SEP + day + _SEP
 				+ hour + _SEP + minute + suffix;
 		return strs;
 	}
@@ -209,7 +231,7 @@ public class Schedule {
 		String hour = convertSingleNumber(String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));
 		String minute = convertSingleNumber(String.valueOf(cal.get(Calendar.MINUTE)));
 		strs[0] = path + SEP + year + SEP + month + SEP + day + SEP + hour + SEP;
-		strs[1] = getServerName() + _SEP + filePrefix + _SEP + "val" + _SEP + year + _SEP + month + _SEP + day + _SEP
+		strs[1] = getServerName() + _SEP + filePrefix + _SEP + year + _SEP + month + _SEP + day + _SEP
 				+ hour + _SEP + minute + suffix;
 		return strs;
 	}
@@ -220,6 +242,18 @@ public class Schedule {
 		} else {
 			return str;
 		}
+	}
+	
+	public void writeNotPutLog(String msg) throws LogManagerException{
+		logManager.writeNotPutLog(msg);
+	}
+	
+	public void doRecover() throws LogManagerException{
+		logManager.doRecover();
+	}
+	
+	public void cleanRecoverLog() throws LogManagerException{
+		logManager.cleanRecoverLog();
 	}
 	
 	public static void main(String[] args){
@@ -336,6 +370,14 @@ public class Schedule {
 
 	public void setNameNode(String nameNode) {
 		this.nameNode = nameNode;
+	}
+
+	public LogManager getLogManager() {
+		return logManager;
+	}
+
+	public void setLogManager(LogManager logManager) {
+		this.logManager = logManager;
 	}
 	
 }
